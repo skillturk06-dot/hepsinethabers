@@ -1,0 +1,187 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-inter: 'Inter', system-ui, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-family: var(--font-inter);
+  font-feature-settings: "cv11", "salt";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background-color: #080B10;
+  color: #F0F4FA;
+  overflow-x: hidden;
+}
+
+/* Scrollbars */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #1E2A3A;
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #2A3848;
+}
+
+/* Selection */
+::selection {
+  background: rgba(232, 25, 44, 0.3);
+  color: #F0F4FA;
+}
+
+/* Focus visible */
+:focus-visible {
+  outline: 2px solid #E8192C;
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+/* Number font feature */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Live dot animation */
+.live-dot {
+  animation: live-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes live-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+/* Skeleton shimmer */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    #0F141C 25%,
+    #151B24 50%,
+    #0F141C 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Ticker */
+.ticker-content {
+  display: inline-block;
+  white-space: nowrap;
+  animation: ticker 60s linear infinite;
+}
+
+.ticker-wrapper:hover .ticker-content {
+  animation-play-state: paused;
+}
+
+@keyframes ticker {
+  0% { transform: translateX(100vw); }
+  100% { transform: translateX(-100%); }
+}
+
+/* Story row hover */
+.story-row {
+  transition: background-color 0.1s ease;
+  border-bottom: 1px solid #131B27;
+}
+
+.story-row:hover {
+  background-color: #0F141C;
+}
+
+.story-row.selected {
+  background-color: #0F141C;
+  border-left: 2px solid #E8192C;
+}
+
+/* Importance badges */
+.badge-critical {
+  background: rgba(232, 25, 44, 0.15);
+  color: #E8192C;
+  border: 1px solid rgba(232, 25, 44, 0.3);
+}
+
+.badge-high {
+  background: rgba(245, 158, 11, 0.12);
+  color: #F59E0B;
+  border: 1px solid rgba(245, 158, 11, 0.25);
+}
+
+.badge-normal {
+  background: rgba(34, 197, 94, 0.08);
+  color: #22C55E;
+  border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+/* Category badge */
+.category-badge {
+  background: rgba(30, 42, 58, 0.8);
+  color: #8A9BB0;
+  border: 1px solid #1E2A3A;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 1px 6px;
+  border-radius: 2px;
+}
+
+/* Drawer */
+.drawer-overlay {
+  background: rgba(8, 11, 16, 0.7);
+  backdrop-filter: blur(2px);
+}
+
+/* Status badge colors */
+.status-YENİ { color: #3B82F6; background: rgba(59,130,246,0.1); border-color: rgba(59,130,246,0.3); }
+.status-İNCELENİYOR { color: #F59E0B; background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.25); }
+.status-TASLAK { color: #8B5CF6; background: rgba(139,92,246,0.1); border-color: rgba(139,92,246,0.25); }
+.status-HAZIR { color: #22C55E; background: rgba(34,197,94,0.1); border-color: rgba(34,197,94,0.25); }
+.status-YAYINLANDI { color: #06B6D4; background: rgba(6,182,212,0.1); border-color: rgba(6,182,212,0.25); }
+.status-ATLANDI { color: #4A5A70; background: rgba(74,90,112,0.1); border-color: rgba(74,90,112,0.25); }
+
+/* Content field editable */
+.content-field {
+  background: #0F141C;
+  border: 1px solid #1E2A3A;
+  border-radius: 4px;
+  transition: border-color 0.15s;
+}
+.content-field:focus-within {
+  border-color: #2A3848;
+}
+
+/* Toast */
+.toast-enter {
+  animation: toast-in 0.25s ease-out;
+}
+
+@keyframes toast-in {
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}

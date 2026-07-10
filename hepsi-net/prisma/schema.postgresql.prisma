@@ -1,0 +1,225 @@
+// Production schema for PostgreSQL (Railway)
+// Copy this to schema.prisma before deploying to Railway with PostgreSQL
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  role      String   @default("EDITOR")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  contentDrafts ContentDraft[]
+  statusHistory EditorialStatusHistory[]
+}
+
+model NewsSource {
+  id              String    @id @default(cuid())
+  name            String
+  domain          String    @unique
+  type            String    @default("RSS")
+  feedUrl         String
+  active          Boolean   @default(true)
+  priority        Int       @default(5)
+  lastFetchAt     DateTime?
+  lastErrorAt     DateTime?
+  lastError       String?
+  fetchIntervalMs Int       @default(300000)
+  isDemo          Boolean   @default(false)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  stories       NewsStory[]
+  ingestionRuns IngestionRun[]
+}
+
+model NewsStory {
+  id              String    @id @default(cuid())
+  sourceId        String
+  externalId      String?
+  url             String    @unique
+  headline        String
+  snippet         String?   @db.Text
+  thumbnailUrl    String?
+  publishedAt     DateTime
+  detectedAt      DateTime  @default(now())
+  category        String    @default("Türkiye")
+  importanceScore Int       @default(0)
+  trendScore      Int       @default(0)
+  isBreaking      Boolean   @default(false)
+  isHidden        Boolean   @default(false)
+  isDemo          Boolean   @default(false)
+
+  factWhat        String?   @db.Text
+  factWhere       String?
+  factWhen        String?
+  factWho         String?
+  factResult      String?   @db.Text
+  factDetails     String?   @db.Text
+
+  editorialStatus String    @default("YENİ")
+
+  clusterId       String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  source             NewsSource             @relation(fields: [sourceId], references: [id])
+  cluster            StoryCluster?          @relation(fields: [clusterId], references: [id])
+  clusterMemberships StoryClusterMember[]
+  contentDrafts      ContentDraft[]
+  keywordMatches     KeywordMatch[]
+  statusHistory      EditorialStatusHistory[]
+
+  @@index([publishedAt])
+  @@index([detectedAt])
+  @@index([category])
+  @@index([importanceScore])
+  @@index([sourceId])
+  @@index([clusterId])
+  @@index([editorialStatus])
+  @@index([isBreaking])
+  @@index([isHidden])
+}
+
+model StoryCluster {
+  id              String    @id @default(cuid())
+  primaryHeadline String
+  primarySourceId String?
+  firstDetectedAt DateTime  @default(now())
+  lastUpdatedAt   DateTime  @updatedAt
+  sourceCount     Int       @default(1)
+  isDemo          Boolean   @default(false)
+  createdAt       DateTime  @default(now())
+
+  stories NewsStory[]
+  members StoryClusterMember[]
+}
+
+model StoryClusterMember {
+  id        String   @id @default(cuid())
+  clusterId String
+  storyId   String
+  addedAt   DateTime @default(now())
+
+  cluster StoryCluster @relation(fields: [clusterId], references: [id], onDelete: Cascade)
+  story   NewsStory    @relation(fields: [storyId], references: [id], onDelete: Cascade)
+
+  @@unique([clusterId, storyId])
+}
+
+model Keyword {
+  id            String   @id @default(cuid())
+  term          String   @unique
+  priority      String   @default("NORMAL")
+  color         String   @default("#EF4444")
+  notifyEnabled Boolean  @default(true)
+  category      String?
+  weight        Int      @default(5)
+  isDemo        Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  matches KeywordMatch[]
+}
+
+model KeywordMatch {
+  id        String   @id @default(cuid())
+  keywordId String
+  storyId   String
+  matchedAt DateTime @default(now())
+
+  keyword Keyword   @relation(fields: [keywordId], references: [id], onDelete: Cascade)
+  story   NewsStory @relation(fields: [storyId], references: [id], onDelete: Cascade)
+
+  @@unique([keywordId, storyId])
+}
+
+model ContentDraft {
+  id               String   @id @default(cuid())
+  storyId          String
+  authorId         String?
+  headline         String?  @db.Text
+  overlayText      String?  @db.Text
+  caption          String?  @db.Text
+  hashtags         String[] @default([])
+  validationStatus String   @default("PENDING")
+  validationNotes  String?  @db.Text
+  instagramUrl     String?
+  isDemo           Boolean  @default(false)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  story    NewsStory      @relation(fields: [storyId], references: [id])
+  author   User?          @relation(fields: [authorId], references: [id])
+  versions ContentVersion[]
+}
+
+model ContentVersion {
+  id        String   @id @default(cuid())
+  draftId   String
+  field     String
+  content   String   @db.Text
+  action    String?
+  createdAt DateTime @default(now())
+
+  draft ContentDraft @relation(fields: [draftId], references: [id], onDelete: Cascade)
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  type      String
+  title     String
+  body      String?
+  storyId   String?
+  sourceId  String?
+  isRead    Boolean  @default(false)
+  isDemo    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([isRead])
+  @@index([createdAt])
+}
+
+model EditorialStatusHistory {
+  id         String   @id @default(cuid())
+  storyId    String
+  userId     String?
+  fromStatus String?
+  toStatus   String
+  changedAt  DateTime @default(now())
+
+  story NewsStory @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  user  User?     @relation(fields: [userId], references: [id])
+}
+
+model IngestionRun {
+  id             String    @id @default(cuid())
+  sourceId       String
+  startedAt      DateTime  @default(now())
+  completedAt    DateTime?
+  status         String    @default("RUNNING")
+  storiesFetched Int       @default(0)
+  storiesNew     Int       @default(0)
+  error          String?
+
+  source NewsSource @relation(fields: [sourceId], references: [id])
+
+  @@index([startedAt])
+  @@index([sourceId])
+}
+
+model AppSetting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String   @db.Text
+  updatedAt DateTime @updatedAt
+}
