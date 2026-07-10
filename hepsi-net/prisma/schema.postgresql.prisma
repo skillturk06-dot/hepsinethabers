@@ -150,7 +150,7 @@ model ContentDraft {
   headline         String?  @db.Text
   overlayText      String?  @db.Text
   caption          String?  @db.Text
-  hashtags         String[] @default([])
+  hashtags         String   @default("[]") @db.Text
   validationStatus String   @default("PENDING")
   validationNotes  String?  @db.Text
   instagramUrl     String?
