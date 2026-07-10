@@ -9,6 +9,9 @@ COPY package*.json ./
 COPY prisma ./prisma/
 RUN npm ci
 
+# Use the PostgreSQL schema for production deploys (Railway)
+RUN cp prisma/schema.postgresql.prisma prisma/schema.prisma
+
 # Generate Prisma client
 RUN npx prisma generate
 
@@ -17,6 +20,9 @@ FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+
+# Use the PostgreSQL schema for production deploys (Railway)
+RUN cp prisma/schema.postgresql.prisma prisma/schema.prisma
 
 # Build Next.js
 ENV NEXT_TELEMETRY_DISABLED=1
